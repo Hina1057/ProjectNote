@@ -1,0 +1,24 @@
+services:
+  server:
+    build:
+      context: ./server
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./server:/app
+      - server-node-modules:/app/node_modules
+
+  app:
+    build:
+      context: ./app
+    ports:
+      - "8080:5173"
+    volumes:
+      - ./app:/app
+      - app-node-modules:/app/node_modules
+    depends_on:
+      - server
+
+volumes:
+  server-node-modules:
+  app-node-modules:
