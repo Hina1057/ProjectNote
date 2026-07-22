@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import AuthControls from '@/components/AuthControls.vue'
 import DashboardCharts from '@/components/DashboardCharts.vue'
 import ProjectCard from '@/components/ProjectCard.vue'
 import type { Project, ProjectCategory, ProjectStatus } from '@/types/project'
@@ -156,6 +157,8 @@ onMounted(fetchProjects)
       <h1>ProjectNote</h1>
       <RouterLink class="new-project-link" :to="{ name: 'new-project' }">新規登録</RouterLink>
     </header>
+
+    <AuthControls class="sidebar-auth" />
 
     <section
       v-if="!isLoading && !errorMessage"
@@ -327,6 +330,14 @@ h1 {
   font-weight: 500;
   letter-spacing: 0.02em;
   text-decoration: none;
+}
+
+.sidebar-auth {
+  position: fixed;
+  z-index: 23;
+  top: 15.5rem;
+  left: 1.5rem;
+  width: 12rem;
 }
 
 .project-dashboard {
@@ -640,6 +651,15 @@ h1 {
   .home-view::before,
   .home-view::after {
     display: none;
+  }
+
+  .sidebar-auth {
+    position: relative;
+    z-index: auto;
+    inset: auto;
+    width: 100%;
+    max-width: 24rem;
+    margin: 0 0 1.5rem;
   }
 
   .filter-controls {
