@@ -3,7 +3,9 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AuthControls from '@/components/AuthControls.vue'
 import DashboardCharts from '@/components/DashboardCharts.vue'
+import JoinedProjectsPanel from '@/components/JoinedProjectsPanel.vue'
 import ProjectCard from '@/components/ProjectCard.vue'
+import ProjectCreatePanel from '@/components/ProjectCreatePanel.vue'
 import type { Project, ProjectCategory, ProjectStatus } from '@/types/project'
 import { formatDateTime, getDateTimestamp } from '@/utils/formatDate'
 
@@ -159,6 +161,8 @@ onMounted(fetchProjects)
     </header>
 
     <AuthControls class="sidebar-auth" />
+    <ProjectCreatePanel class="sidebar-project-create" />
+    <JoinedProjectsPanel />
 
     <section
       v-if="!isLoading && !errorMessage"
@@ -336,6 +340,14 @@ h1 {
   position: fixed;
   z-index: 23;
   top: 15.5rem;
+  left: 1.5rem;
+  width: 12rem;
+}
+
+.sidebar-project-create {
+  position: fixed;
+  z-index: 23;
+  top: 24rem;
   left: 1.5rem;
   width: 12rem;
 }
@@ -654,6 +666,15 @@ h1 {
   }
 
   .sidebar-auth {
+    position: relative;
+    z-index: auto;
+    inset: auto;
+    width: 100%;
+    max-width: 24rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .sidebar-project-create {
     position: relative;
     z-index: auto;
     inset: auto;
