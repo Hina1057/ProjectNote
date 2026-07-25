@@ -39,6 +39,10 @@ const activeSection = computed(() => {
     return 'settings'
   }
 
+  if (route.name === 'workspace-settings') {
+    return 'workspace-settings'
+  }
+
   return 'dashboard'
 })
 const isMobileOpen = ref(false)
@@ -110,6 +114,14 @@ onBeforeUnmount(() => document.removeEventListener('keydown', handleEscape))
       >
         <UiIcon name="folder" />
         プロジェクト
+      </RouterLink>
+      <RouterLink
+        class="app-navigation__item"
+        :class="{ 'app-navigation__item--active': activeSection === 'workspace-settings' }"
+        :to="{ name: 'workspace-settings' }"
+      >
+        <UiIcon name="sliders" />
+        Workspace Settings
       </RouterLink>
       <RouterLink
         class="app-navigation__item"

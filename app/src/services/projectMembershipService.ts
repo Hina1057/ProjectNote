@@ -75,6 +75,15 @@ export const findProjectByInviteCode = async (
   }
 }
 
+export const hasWorkspaceAccess = async (uid: string, workspaceId: string) => {
+  const [workspaceSnapshot, membershipSnapshot] = await Promise.all([
+    getDoc(doc(db, 'projects', workspaceId)),
+    getDoc(doc(db, 'users', uid, 'projects', workspaceId)),
+  ])
+
+  return workspaceSnapshot.exists() && membershipSnapshot.exists()
+}
+
 export const joinProjectByInviteCode = async (
   currentUser: User,
   inviteCode: string,

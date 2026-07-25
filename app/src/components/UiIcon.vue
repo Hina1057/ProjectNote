@@ -129,6 +129,15 @@ defineProps<{
       <circle cx="12" cy="12" r="3.5" />
       <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4" />
     </template>
+    <template v-else-if="name === 'sliders'">
+      <path d="M4 6h10M18 6h2M4 12h3M11 12h9M4 18h8M16 18h4" />
+      <circle cx="16" cy="6" r="2" />
+      <circle cx="9" cy="12" r="2" />
+      <circle cx="14" cy="18" r="2" />
+    </template>
+    <template v-else-if="name === 'crown'">
+      <path d="m4 8 4 3 4-6 4 6 4-3-2 10H6zM6 21h12" />
+    </template>
     <template v-else>
       <circle cx="12" cy="12" r="9" />
     </template>

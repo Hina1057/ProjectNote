@@ -11,6 +11,7 @@ import ProjectsView from '@/views/ProjectsView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import TasksView from '@/views/TasksView.vue'
 import WorkspaceDetailView from '@/views/WorkspaceDetailView.vue'
+import WorkspaceSettingsView from '@/views/WorkspaceSettingsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,6 +54,11 @@ const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: SettingsView,
+    },
+    {
+      path: '/workspace-settings',
+      name: 'workspace-settings',
+      component: WorkspaceSettingsView,
     },
     {
       path: '/tasks',

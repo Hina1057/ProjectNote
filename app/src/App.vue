@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import AppSidebar from '@/components/AppSidebar.vue'
+import { useWorkspaceSelectionPersistence } from '@/composables/useWorkspaceSelectionPersistence'
+
+useWorkspaceSelectionPersistence()
 </script>
 
 <template>
