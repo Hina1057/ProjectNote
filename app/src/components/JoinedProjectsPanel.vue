@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { onAuthStateChanged, type Unsubscribe as AuthUnsubscribe, type User } from 'firebase/auth'
 import {
   collection,
@@ -9,6 +10,9 @@ import {
   type Unsubscribe as FirestoreUnsubscribe,
 } from 'firebase/firestore'
 import { auth, db, isFirebaseConfigured } from '@/firebase'
+import UiIcon from '@/components/UiIcon.vue'
+import { useSelectedWorkspace } from '@/composables/useSelectedWorkspace'
+import { getRoleLabel } from '@/utils/uiLabels'
 
 type ProjectRole = 'host' | 'member'
 
@@ -27,7 +31,8 @@ interface ProjectMembership {
 
 const user = ref<User | null>(null)
 const joinedProjects = ref<JoinedProject[]>([])
-const selectedProjectId = ref<string | null>(null)
+const { selectedWorkspaceId: selectedProjectId, selectWorkspace, clearSelectedWorkspace } =
+  useSelectedWorkspace()
 const isLoading = ref(false)
 const errorMessage = ref('')
 const isCopying = ref(false)
@@ -79,11 +84,13 @@ const stopMembershipSubscription = () => {
   membershipUnsubscribe = undefined
 }
 
-const resetJoinedProjects = () => {
+const resetJoinedProjects = (shouldClearSelection = false) => {
   stopMembershipSubscription()
   stopProjectSubscriptions()
   joinedProjects.value = []
-  selectedProjectId.value = null
+  if (shouldClearSelection) {
+    clearSelectedWorkspace()
+  }
   isLoading.value = false
   errorMessage.value = ''
   resetCopyFeedback()
@@ -104,7 +111,12 @@ const publishProjects = () => {
     !selectedProjectId.value ||
     !joinedProjects.value.some((project) => project.id === selectedProjectId.value)
   ) {
-    selectedProjectId.value = joinedProjects.value[0]?.id ?? null
+    const firstProjectId = joinedProjects.value[0]?.id
+    if (firstProjectId) {
+      selectWorkspace(firstProjectId)
+    } else {
+      clearSelectedWorkspace()
+    }
     resetCopyFeedback()
   }
 }
@@ -173,7 +185,7 @@ const subscribeToMemberships = (uid: string) => {
       }))
 
       if (memberships.length === 0) {
-        selectedProjectId.value = null
+        clearSelectedWorkspace()
         isLoading.value = false
         return
       }
@@ -187,7 +199,7 @@ const subscribeToMemberships = (uid: string) => {
       console.error(error)
       stopProjectSubscriptions()
       joinedProjects.value = []
-      selectedProjectId.value = null
+      clearSelectedWorkspace()
       isLoading.value = false
       errorMessage.value = '参加中プロジェクトの読み込みに失敗しました。'
     },
@@ -195,7 +207,7 @@ const subscribeToMemberships = (uid: string) => {
 }
 
 const selectProject = (projectId: string) => {
-  selectedProjectId.value = projectId
+  selectWorkspace(projectId)
   resetCopyFeedback()
 }
 
@@ -225,7 +237,7 @@ const copyInviteCode = async () => {
     copyFeedbackTimeout = window.setTimeout(() => {
       copyMessage.value = ''
       copyFeedbackTimeout = undefined
-    }, 2000)
+    }, 3500)
   } catch (error) {
     if (currentRequestVersion !== copyRequestVersion) {
       return
@@ -246,7 +258,9 @@ onMounted(() => {
   }
 
   authUnsubscribe = onAuthStateChanged(auth, (currentUser) => {
-    resetJoinedProjects()
+    const shouldClearSelection =
+      !currentUser || Boolean(user.value && user.value.uid !== currentUser.uid)
+    resetJoinedProjects(shouldClearSelection)
     user.value = currentUser
 
     if (currentUser) {
@@ -257,7 +271,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   authUnsubscribe?.()
-  resetJoinedProjects()
+  stopMembershipSubscription()
+  stopProjectSubscriptions()
+  resetCopyFeedback()
 })
 </script>
 
@@ -265,14 +281,16 @@ onUnmounted(() => {
   <div v-if="user" class="joined-projects-workspace">
     <aside class="joined-projects-sidebar" aria-labelledby="joined-projects-title">
       <header>
-        <p>SHARED PROJECTS</p>
+        <p>共有プロジェクト</p>
         <h2 id="joined-projects-title">参加中プロジェクト</h2>
       </header>
 
       <p v-if="errorMessage" class="sidebar-message sidebar-message--error" role="alert">
         {{ errorMessage }}
       </p>
-      <p v-if="isLoading" class="sidebar-message" role="status">読み込み中です...</p>
+      <p v-if="isLoading" class="sidebar-message sidebar-message--loading" role="status">
+        読み込み中です
+      </p>
       <p v-else-if="joinedProjects.length === 0" class="sidebar-message">
         参加中のプロジェクトはありません
       </p>
@@ -282,10 +300,12 @@ onUnmounted(() => {
             type="button"
             :class="{ 'project-select-button--active': project.id === selectedProjectId }"
             :aria-pressed="project.id === selectedProjectId"
+            :aria-label="`${project.name}を選択して詳細を表示`"
+            aria-controls="selected-shared-project"
             @click="selectProject(project.id)"
           >
             <strong>{{ project.name }}</strong>
-            <span>{{ project.role }}</span>
+            <span>{{ getRoleLabel(project.role) }}</span>
           </button>
         </li>
       </ul>
@@ -293,15 +313,26 @@ onUnmounted(() => {
 
     <section
       v-if="selectedProject"
-      class="selected-project-card"
+      id="selected-shared-project"
+      class="selected-project-card ui-flow-frame"
       aria-labelledby="selected-project-title"
+      aria-live="polite"
     >
       <div class="selected-project-heading">
         <div>
-          <p>ACTIVE SHARED PROJECT</p>
+          <p>選択中の共有プロジェクト</p>
           <h2 id="selected-project-title">{{ selectedProject.name }}</h2>
         </div>
-        <span class="role-badge">{{ selectedProject.role }}</span>
+        <div class="selected-project-actions">
+          <span class="role-badge">{{ getRoleLabel(selectedProject.role) }}</span>
+          <RouterLink
+            class="workspace-detail-link"
+            :to="{ name: 'workspace-detail', params: { projectId: selectedProject.id } }"
+          >
+            詳細を見る
+            <UiIcon name="chevron" />
+          </RouterLink>
+        </div>
       </div>
 
       <div class="selected-project-body">
@@ -312,20 +343,26 @@ onUnmounted(() => {
 
         <div>
           <span class="field-label">参加コード</span>
-          <div class="invite-code-row">
+          <div class="invite-code-row ui-flow-frame">
             <code>{{ selectedProject.inviteCode || '未設定' }}</code>
             <button
               type="button"
               :disabled="!user || !selectedProject.inviteCode || isCopying"
               @click="copyInviteCode"
             >
+              <UiIcon name="copy" />
               {{ isCopying ? 'コピー中...' : 'コピー' }}
             </button>
           </div>
-          <p v-if="copyMessage" class="copy-feedback" role="status">
+          <p v-if="copyMessage" class="copy-feedback" role="status" aria-live="polite">
             {{ copyMessage }}
           </p>
-          <p v-if="copyError" class="copy-feedback copy-feedback--error" role="alert">
+          <p
+            v-if="copyError"
+            class="copy-feedback copy-feedback--error"
+            role="alert"
+            aria-live="assertive"
+          >
             {{ copyError }}
           </p>
         </div>
@@ -343,7 +380,7 @@ onUnmounted(() => {
 .joined-projects-sidebar {
   position: fixed;
   z-index: 23;
-  top: 28rem;
+  top: 32rem;
   bottom: 5.5rem;
   left: 1.5rem;
   width: 12rem;
@@ -476,6 +513,48 @@ onUnmounted(() => {
   color: #8aeafa;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.625rem;
+}
+
+.selected-project-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.workspace-detail-link {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.workspace-detail-link:hover,
+.workspace-detail-link:focus-visible {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-hover);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.workspace-detail-link :deep(.ui-icon) {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .selected-project-body {

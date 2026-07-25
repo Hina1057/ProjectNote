@@ -3,6 +3,7 @@ export type ProjectStatus = 'Todo' | 'In Progress' | 'Done'
 
 export interface Project {
   id: number
+  workspaceId: string
   title: string
   category: ProjectCategory
   content: string

@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useSelectedWorkspace } from '@/composables/useSelectedWorkspace'
+import { auth } from '@/firebase'
+import { createActivity } from '@/services/activityService'
 import type { Project, ProjectCategory, ProjectStatus } from '@/types/project'
+import { getCategoryLabel, getStatusLabel } from '@/utils/uiLabels'
 
 const API_URL = 'http://localhost:5173/projects'
 const categoryOptions: ProjectCategory[] = ['Bug', 'Idea', 'UI', 'Task', 'Meeting', 'Reference']
@@ -9,6 +13,7 @@ const statusOptions: ProjectStatus[] = ['Todo', 'In Progress', 'Done']
 
 const route = useRoute()
 const router = useRouter()
+const { selectedWorkspaceId } = useSelectedWorkspace()
 const project = ref<Project | null>(null)
 const isLoading = ref(true)
 const isSubmitting = ref(false)
@@ -34,6 +39,15 @@ const fetchProject = async () => {
     }
 
     const currentProject = (await response.json()) as Project
+
+    if (
+      !selectedWorkspaceId.value ||
+      currentProject.workspaceId !== selectedWorkspaceId.value
+    ) {
+      loadError.value = 'このノートを編集する権限がありません'
+      return
+    }
+
     project.value = currentProject
     form.title = currentProject.title
     form.category = currentProject.category
@@ -53,6 +67,15 @@ const updateProject = async () => {
   }
 
   errorMessage.value = ''
+
+  if (
+    !selectedWorkspaceId.value ||
+    project.value.workspaceId !== selectedWorkspaceId.value
+  ) {
+    errorMessage.value = 'このノートを編集する権限がありません'
+    return
+  }
+
   const title = form.title.trim()
   const content = form.content.trim()
 
@@ -82,6 +105,15 @@ const updateProject = async () => {
       throw new Error(`HTTP error: ${response.status}`)
     }
 
+    await createActivity({
+      workspaceId: project.value.workspaceId,
+      type: 'note_updated',
+      user: auth.currentUser,
+      targetId: project.value.id,
+      targetTitle: title,
+      message: `${title}を更新しました`,
+    })
+
     await router.push({ name: 'project-detail', params: { id: project.value.id } })
   } catch (error) {
     console.error(error)
@@ -97,23 +129,23 @@ onMounted(fetchProject)
 <template>
   <main class="edit-project-view">
     <header class="edit-project-header">
-      <RouterLink class="brand" :to="{ name: 'home' }">ProjectNote</RouterLink>
-      <span class="header-nav" aria-hidden="true">EDIT_NOTE&nbsp; // &nbsp;UPDATE_MODE</span>
+      <RouterLink class="brand" :to="{ name: 'dashboard' }">ProjectNote</RouterLink>
+      <span class="header-nav">ノート編集</span>
     </header>
 
     <p v-if="isLoading" class="state-message" role="status">読み込み中です...</p>
     <div v-else-if="loadError" class="state-message state-message--error" role="alert">
       <p>{{ loadError }}</p>
-      <RouterLink :to="{ name: 'home' }">一覧へ戻る</RouterLink>
+      <RouterLink :to="{ name: 'notes' }">一覧へ戻る</RouterLink>
     </div>
 
     <section v-else-if="project" class="form-panel">
       <div class="panel-heading">
         <div>
-          <p>SYSTEM ACTION&nbsp; // &nbsp;EDIT NOTE {{ project.id }}</p>
+          <p>ノート編集&nbsp; / &nbsp;{{ project.id }}</p>
           <h1>ノート編集</h1>
         </div>
-        <span class="edit-mode">● EDIT_MODE: ACTIVE</span>
+        <span class="edit-mode">編集中</span>
       </div>
 
       <form class="project-form" @submit.prevent="updateProject">
@@ -134,7 +166,7 @@ onMounted(fetchProject)
             <label for="edit-category">カテゴリ</label>
             <select id="edit-category" v-model="form.category" name="category">
               <option v-for="category in categoryOptions" :key="category" :value="category">
-                {{ category }}
+                {{ getCategoryLabel(category) }}
               </option>
             </select>
           </div>
@@ -143,10 +175,10 @@ onMounted(fetchProject)
             <label for="edit-status">ステータス</label>
             <select id="edit-status" v-model="form.status" name="status">
               <option v-if="!hasCurrentStatusOption" :value="form.status">
-                {{ form.status }}
+                {{ getStatusLabel(form.status) }}
               </option>
               <option v-for="status in statusOptions" :key="status" :value="status">
-                {{ status }}
+                {{ getStatusLabel(status) }}
               </option>
             </select>
           </div>
@@ -164,7 +196,9 @@ onMounted(fetchProject)
           ></textarea>
         </div>
 
-        <p v-if="errorMessage" class="error-message" role="alert">{{ errorMessage }}</p>
+        <p v-if="errorMessage" class="error-message" role="alert" aria-live="assertive">
+          {{ errorMessage }}
+        </p>
 
         <div class="form-actions">
           <button type="submit" :disabled="isSubmitting">
@@ -180,9 +214,7 @@ onMounted(fetchProject)
       </form>
     </section>
 
-    <footer class="edit-project-footer" aria-hidden="true">
-      PROJECTNOTE&nbsp; // &nbsp;SYSTEM_READY
-    </footer>
+    <footer class="edit-project-footer" aria-hidden="true">ProjectNote&nbsp; / &nbsp;準備完了</footer>
   </main>
 </template>
 

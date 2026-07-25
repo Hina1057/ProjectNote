@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import UiIcon from '@/components/UiIcon.vue'
+import { useSelectedWorkspace } from '@/composables/useSelectedWorkspace'
+import { auth } from '@/firebase'
+import { createActivity } from '@/services/activityService'
 import type { Project } from '@/types/project'
 import { formatDateTime } from '@/utils/formatDate'
+import { getCategoryLabel, getStatusLabel } from '@/utils/uiLabels'
 
 const API_URL = 'http://localhost:5173/projects'
 const route = useRoute()
 const router = useRouter()
+const { selectedWorkspaceId } = useSelectedWorkspace()
 const project = ref<Project | null>(null)
 const isLoading = ref(true)
 const hasError = ref(false)
+const hasAccessError = ref(false)
 const isDeleting = ref(false)
 const deleteError = ref('')
 
@@ -25,7 +32,18 @@ const fetchProject = async () => {
       throw new Error(`HTTP error: ${response.status}`)
     }
 
-    project.value = (await response.json()) as Project
+    const currentProject = (await response.json()) as Project
+
+    if (
+      !selectedWorkspaceId.value ||
+      currentProject.workspaceId !== selectedWorkspaceId.value
+    ) {
+      hasAccessError.value = true
+      project.value = null
+      return
+    }
+
+    project.value = currentProject
   } catch (error) {
     console.error(error)
     hasError.value = true
@@ -35,15 +53,32 @@ const fetchProject = async () => {
 }
 
 const deleteProject = async () => {
-  if (!project.value || !window.confirm('このノートを削除しますか？')) {
+  if (!project.value) {
+    return
+  }
+
+  if (
+    !selectedWorkspaceId.value ||
+    project.value.workspaceId !== selectedWorkspaceId.value
+  ) {
+    deleteError.value = 'このノートを削除する権限がありません'
+    return
+  }
+
+  if (!window.confirm('このノートを削除しますか？')) {
     return
   }
 
   isDeleting.value = true
   deleteError.value = ''
+  const deletedProject = {
+    id: project.value.id,
+    workspaceId: project.value.workspaceId,
+    title: project.value.title,
+  }
 
   try {
-    const response = await fetch(`${API_URL}/${project.value.id}`, {
+    const response = await fetch(`${API_URL}/${deletedProject.id}`, {
       method: 'DELETE',
     })
 
@@ -51,7 +86,16 @@ const deleteProject = async () => {
       throw new Error(`HTTP error: ${response.status}`)
     }
 
-    await router.push({ name: 'home' })
+    await createActivity({
+      workspaceId: deletedProject.workspaceId,
+      type: 'note_deleted',
+      user: auth.currentUser,
+      targetId: deletedProject.id,
+      targetTitle: deletedProject.title,
+      message: `${deletedProject.title}を削除しました`,
+    })
+
+    await router.push({ name: 'notes' })
   } catch (error) {
     console.error(error)
     deleteError.value = 'ノートの削除に失敗しました。'
@@ -66,33 +110,42 @@ onMounted(fetchProject)
 <template>
   <main class="project-detail-view">
     <header class="detail-header">
-      <RouterLink class="brand" :to="{ name: 'home' }">ProjectNote</RouterLink>
-      <span class="header-status" aria-hidden="true">DETAIL_VIEW&nbsp; // &nbsp;READ_ONLY</span>
+      <RouterLink class="brand" :to="{ name: 'dashboard' }">ProjectNote</RouterLink>
+      <span class="header-status">ノート詳細</span>
     </header>
 
     <div class="detail-shell">
-      <RouterLink class="back-link" :to="{ name: 'home' }">
-        <span aria-hidden="true">←</span>
+      <RouterLink class="back-link" :to="{ name: 'notes' }">
+        <UiIcon name="chevron" class="back-icon" />
         一覧へ戻る
       </RouterLink>
 
-      <p v-if="isLoading" class="state-message" role="status">読み込み中です...</p>
+      <p v-if="isLoading" class="state-message ui-notice--loading" role="status">
+        ノートを読み込んでいます
+      </p>
       <p v-else-if="hasError" class="state-message state-message--error" role="alert">
         ノートが見つかりません
       </p>
+      <p
+        v-else-if="hasAccessError"
+        class="state-message state-message--error"
+        role="alert"
+      >
+        このノートを表示する権限がありません
+      </p>
 
-      <article v-else-if="project" class="detail-card">
+      <article v-else-if="project" class="detail-card ui-flow-frame">
         <div class="detail-card__heading">
           <div class="heading-copy">
-            <p class="eyebrow">PROJECT NOTE&nbsp; // &nbsp;{{ project.id }}</p>
+            <p class="eyebrow">プロジェクトノート&nbsp; / &nbsp;{{ project.id }}</p>
             <h1>{{ project.title }}</h1>
           </div>
 
           <div class="meta-tags" aria-label="ノート情報">
-            <span class="category-tag">{{ project.category }}</span>
+            <span class="category-tag"><UiIcon name="tag" />{{ getCategoryLabel(project.category) }}</span>
             <span class="status-tag">
-              <i aria-hidden="true"></i>
-              {{ project.status }}
+              <UiIcon name="status" />
+              {{ getStatusLabel(project.status) }}
             </span>
           </div>
         </div>
@@ -100,20 +153,20 @@ onMounted(fetchProject)
         <dl class="note-meta">
           <div>
             <dt>カテゴリ</dt>
-            <dd>{{ project.category }}</dd>
+            <dd>{{ getCategoryLabel(project.category) }}</dd>
           </div>
           <div>
             <dt>ステータス</dt>
-            <dd>{{ project.status }}</dd>
+            <dd>{{ getStatusLabel(project.status) }}</dd>
           </div>
           <div>
-            <dt>Created</dt>
+            <dt>作成日</dt>
             <dd>
               <time :datetime="project.createdAt || undefined">{{ formattedCreatedAt }}</time>
             </dd>
           </div>
           <div>
-            <dt>Updated</dt>
+            <dt>更新日</dt>
             <dd>
               <time :datetime="updatedAtValue || undefined">{{ formattedUpdatedAt }}</time>
             </dd>
@@ -136,16 +189,18 @@ onMounted(fetchProject)
             class="edit-button"
             :to="{ name: 'edit-project', params: { id: project.id } }"
           >
+            <UiIcon name="edit" />
             編集
           </RouterLink>
           <button class="delete-button" type="button" :disabled="isDeleting" @click="deleteProject">
+            <UiIcon name="alert" />
             {{ isDeleting ? '削除中...' : '削除' }}
           </button>
         </div>
 
         <footer class="detail-card__footer" aria-hidden="true">
-          <span>DATA_SOURCE&nbsp; // &nbsp;PROJECTS_API</span>
-          <span>RECORD_READY</span>
+          <span>データソース&nbsp; / &nbsp;ノートAPI</span>
+          <span>表示準備完了</span>
         </footer>
       </article>
     </div>
@@ -387,9 +442,7 @@ dd {
 }
 
 .content-section h2::before {
-  margin-right: 0.625rem;
-  color: var(--cyan);
-  content: '▣';
+  content: none;
 }
 
 .content-section p {

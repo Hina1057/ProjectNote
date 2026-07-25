@@ -8,6 +8,7 @@ import {
   type User,
 } from 'firebase/auth'
 import { auth, googleProvider, isFirebaseConfigured } from '@/firebase'
+import UiIcon from '@/components/UiIcon.vue'
 
 const user = ref<User | null>(null)
 const isAuthReady = ref(false)
@@ -97,20 +98,32 @@ onUnmounted(() => {
       </div>
 
       <button type="button" :disabled="isProcessing" @click="logout">
+        <UiIcon name="logout" />
         {{ isProcessing ? '処理中...' : 'ログアウト' }}
       </button>
     </div>
 
-    <button
-      v-else
-      class="google-login-button"
-      type="button"
-      :disabled="!isAuthReady || isProcessing"
-      @click="loginWithGoogle"
-    >
-      <span aria-hidden="true">G</span>
-      {{ isProcessing ? 'ログイン中...' : 'Googleでログイン' }}
-    </button>
+    <div v-else class="login-screen">
+      <section class="login-panel ui-flow-frame" aria-labelledby="login-title">
+        <span class="login-mark"><UiIcon name="brand" /></span>
+        <h1 id="login-title">ProjectNote</h1>
+        <p class="login-subtitle">Collaborative Workspace</p>
+        <strong>アイデアを整理し、チームで育てる。</strong>
+        <p class="login-description">
+          アイデアとプロジェクトノートを、チームで育てるためのワークスペースです。
+        </p>
+        <button
+          class="google-login-button"
+          type="button"
+          :disabled="!isAuthReady || isProcessing"
+          @click="loginWithGoogle"
+        >
+          <span aria-hidden="true">G</span>
+          {{ isProcessing ? 'ログイン中...' : 'Googleでログイン' }}
+        </button>
+        <small>Googleによる安全な認証を使用しています</small>
+      </section>
+    </div>
   </div>
 </template>
 

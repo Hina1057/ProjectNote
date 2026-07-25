@@ -4,3 +4,5 @@ dist
 .gitignore
 .DS_Store
 npm-debug.log*
+.env*
+!.env.example

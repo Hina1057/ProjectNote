@@ -3,6 +3,8 @@ import { onMounted, onUnmounted, reactive, ref } from 'vue'
 import { onAuthStateChanged, type Unsubscribe, type User } from 'firebase/auth'
 import { collection, doc, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { auth, db, isFirebaseConfigured } from '@/firebase'
+import UiIcon from '@/components/UiIcon.vue'
+import { createActivity } from '@/services/activityService'
 import { generateInviteCode } from '@/utils/generateInviteCode'
 
 interface CreatedProject {
@@ -121,6 +123,15 @@ const createProject = async () => {
 
     await batch.commit()
 
+    await createActivity({
+      workspaceId: projectReference.id,
+      type: 'workspace_created',
+      user: currentUser,
+      targetId: projectReference.id,
+      targetTitle: name,
+      message: 'プロジェクトを作成しました',
+    })
+
     createdProject.value = { name, inviteCode }
   } catch (error) {
     console.error(error)
@@ -147,12 +158,18 @@ const copyCreatedInviteCode = async () => {
     copyFeedbackTimeout = window.setTimeout(() => {
       copyMessage.value = ''
       copyFeedbackTimeout = undefined
-    }, 2000)
+    }, 3500)
   } catch (error) {
     console.error(error)
     copyError.value = '参加コードのコピーに失敗しました。'
   } finally {
     isCopyingInviteCode.value = false
+  }
+}
+
+const handleEscape = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && isOpen.value) {
+    closeDialog()
   }
 }
 
@@ -168,125 +185,138 @@ onMounted(() => {
       closeDialog()
     }
   })
+
+  document.addEventListener('keydown', handleEscape)
 })
 
 onUnmounted(() => {
   unsubscribe?.()
   resetCopyFeedback()
+  document.removeEventListener('keydown', handleEscape)
 })
 </script>
 
 <template>
   <div v-if="user" class="project-create-panel">
     <button class="open-button" type="button" @click="openDialog">
-      <span aria-hidden="true">＋</span>
+      <UiIcon name="plus" />
       プロジェクトを作成
     </button>
 
-    <div
-      v-if="isOpen"
-      class="dialog-backdrop"
-      role="presentation"
-      @click.self="closeDialog"
-    >
-      <section
-        class="create-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="create-project-title"
-      >
-        <div class="dialog-heading">
-          <div>
-            <p>NEW SHARED PROJECT</p>
-            <h2 id="create-project-title">プロジェクトを作成</h2>
-          </div>
-          <button
-            class="close-button"
-            type="button"
-            aria-label="作成画面を閉じる"
-            :disabled="isSubmitting"
-            @click="closeDialog"
+    <Teleport to="body">
+      <div v-if="isOpen" class="app-shell app-modal-root">
+        <div
+          class="dialog-backdrop"
+          role="presentation"
+          @click.self="closeDialog"
+        >
+          <section
+            class="create-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-project-title"
           >
-            ×
-          </button>
-        </div>
+            <div class="dialog-heading">
+              <div>
+                <p>新しい共有プロジェクト</p>
+                <h2 id="create-project-title">プロジェクトを作成</h2>
+              </div>
+              <button
+                class="close-button"
+                type="button"
+                aria-label="作成画面を閉じる"
+                :disabled="isSubmitting"
+                @click="closeDialog"
+              >
+                <UiIcon name="close" />
+              </button>
+            </div>
 
-        <div v-if="createdProject" class="success-panel" role="status">
-          <span class="success-label">PROJECT CREATED</span>
-          <h3>{{ createdProject.name }}</h3>
-          <p>参加コード</p>
-          <div class="created-invite-code">
-            <strong>{{ createdProject.inviteCode }}</strong>
-            <button
-              class="copy-button"
-              type="button"
-              :disabled="!user || isCopyingInviteCode"
-              @click="copyCreatedInviteCode"
+            <div v-if="createdProject" class="success-panel ui-flow-frame" role="status">
+              <span class="success-label">作成完了</span>
+              <h3>{{ createdProject.name }}</h3>
+              <p>参加コード</p>
+              <div class="created-invite-code ui-flow-frame">
+                <strong>{{ createdProject.inviteCode }}</strong>
+                <button
+                  class="copy-button"
+                  type="button"
+                  :disabled="!user || isCopyingInviteCode"
+                  @click="copyCreatedInviteCode"
+                >
+                  <UiIcon name="copy" />
+                  {{ isCopyingInviteCode ? 'コピー中...' : 'コピー' }}
+                </button>
+              </div>
+              <span v-if="copyMessage" class="copy-feedback" role="status">
+                {{ copyMessage }}
+              </span>
+              <span v-if="copyError" class="copy-feedback copy-feedback--error" role="alert">
+                {{ copyError }}
+              </span>
+              <small>参加するメンバーへ、このコードを共有してください。</small>
+              <button class="primary-button" type="button" @click="closeDialog">閉じる</button>
+            </div>
+
+            <form
+              v-else
+              class="create-form"
+              :aria-busy="isSubmitting"
+              @submit.prevent="createProject"
             >
-              {{ isCopyingInviteCode ? 'コピー中...' : 'コピー' }}
-            </button>
-          </div>
-          <span v-if="copyMessage" class="copy-feedback" role="status">
-            {{ copyMessage }}
-          </span>
-          <span v-if="copyError" class="copy-feedback copy-feedback--error" role="alert">
-            {{ copyError }}
-          </span>
-          <small>参加するメンバーへ、このコードを共有してください。</small>
-          <button class="primary-button" type="button" @click="closeDialog">閉じる</button>
+              <div class="form-field">
+                <label for="shared-project-name">
+                  プロジェクト名
+                  <span>必須</span>
+                </label>
+                <input
+                  id="shared-project-name"
+                  v-model="form.name"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="off"
+                  placeholder="例：ゲーム開発プロジェクト"
+                  required
+                  autofocus
+                />
+              </div>
+
+              <div class="form-field">
+                <label for="shared-project-description">
+                  説明
+                  <span class="optional">任意</span>
+                </label>
+                <textarea
+                  id="shared-project-description"
+                  v-model="form.description"
+                  maxlength="500"
+                  rows="5"
+                  placeholder="プロジェクトの目的や概要を入力"
+                ></textarea>
+              </div>
+
+              <p v-if="errorMessage" class="error-message" role="alert" aria-live="assertive">
+                {{ errorMessage }}
+              </p>
+
+              <div class="form-actions">
+                <button
+                  class="secondary-button"
+                  type="button"
+                  :disabled="isSubmitting"
+                  @click="closeDialog"
+                >
+                  キャンセル
+                </button>
+                <button class="primary-button" type="submit" :disabled="isSubmitting">
+                  {{ isSubmitting ? '作成中...' : '作成する' }}
+                </button>
+              </div>
+            </form>
+          </section>
         </div>
-
-        <form v-else class="create-form" :aria-busy="isSubmitting" @submit.prevent="createProject">
-          <div class="form-field">
-            <label for="shared-project-name">
-              プロジェクト名
-              <span>必須</span>
-            </label>
-            <input
-              id="shared-project-name"
-              v-model="form.name"
-              type="text"
-              maxlength="80"
-              autocomplete="off"
-              placeholder="例：ゲーム開発プロジェクト"
-              required
-            />
-          </div>
-
-          <div class="form-field">
-            <label for="shared-project-description">
-              説明
-              <span class="optional">任意</span>
-            </label>
-            <textarea
-              id="shared-project-description"
-              v-model="form.description"
-              maxlength="500"
-              rows="5"
-              placeholder="プロジェクトの目的や概要を入力"
-            ></textarea>
-          </div>
-
-          <p v-if="errorMessage" class="error-message" role="alert">
-            {{ errorMessage }}
-          </p>
-
-          <div class="form-actions">
-            <button
-              class="secondary-button"
-              type="button"
-              :disabled="isSubmitting"
-              @click="closeDialog"
-            >
-              キャンセル
-            </button>
-            <button class="primary-button" type="submit" :disabled="isSubmitting">
-              {{ isSubmitting ? '作成中...' : '作成する' }}
-            </button>
-          </div>
-        </form>
-      </section>
-    </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 

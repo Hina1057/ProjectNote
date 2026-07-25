@@ -1,0 +1,2240 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--color-text);
+}
+
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
+:focus-visible {
+  outline: 3px solid rgba(34, 184, 240, 0.24);
+  outline-offset: 2px;
+}
+
+/* Home layout */
+.app-shell .home-view {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 7rem clamp(1rem, 3vw, 3rem) 4rem;
+  color: var(--color-text);
+  background:
+    radial-gradient(circle at 86% 0%, rgba(207, 243, 255, 0.75), transparent 25rem),
+    var(--color-bg);
+}
+
+.app-shell .home-view::before,
+.app-shell .home-view::after {
+  display: none;
+}
+
+.app-shell .page-header,
+.app-shell .new-project-header,
+.app-shell .edit-project-header,
+.app-shell .detail-header {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  right: 0;
+  left: 17rem;
+  height: 4.75rem;
+  padding: 0 clamp(1rem, 3vw, 3rem);
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 18px rgba(31, 89, 117, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell .page-header__title {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.app-shell .page-header__title > span {
+  color: var(--color-primary-dark);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.app-shell .page-header h1 {
+  color: var(--color-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.app-shell .new-project-link {
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--color-primary), #43c9f5);
+  box-shadow: 0 8px 20px rgba(34, 184, 240, 0.2);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.app-shell .new-project-link:hover,
+.app-shell .new-project-link:focus-visible {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* Header search + filters */
+.app-shell .filter-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  width: min(100%, 76rem);
+  height: auto;
+  margin: 0 auto 1.5rem;
+}
+
+.app-shell .filter-field--search {
+  position: fixed;
+  z-index: 55;
+  top: 0.85rem;
+  left: calc(17rem + clamp(10rem, 23vw, 23rem));
+  width: min(27rem, calc(100vw - 50rem));
+}
+
+.app-shell .filter-field--search::before {
+  top: 0.65rem;
+  color: var(--color-text-secondary);
+}
+
+.app-shell .filter-field:not(.filter-field--search) {
+  position: relative;
+  z-index: auto;
+  inset: auto;
+  width: min(15rem, 100%);
+}
+
+.app-shell .filter-field label {
+  color: var(--color-text-secondary);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.app-shell .filter-field input,
+.app-shell .filter-field select {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text);
+}
+
+.app-shell .filter-field input:focus,
+.app-shell .filter-field select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(34, 184, 240, 0.12);
+}
+
+.app-shell .filter-field input::placeholder {
+  color: #93a2ad;
+}
+
+.app-shell .filter-field select {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-shell .filter-field select option {
+  background: #ffffff;
+  color: var(--color-text);
+}
+
+/* Joined projects */
+.app-shell .joined-projects-workspace {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.36fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  width: min(100%, 76rem);
+  max-width: none;
+  margin: 0 auto 2rem;
+  scroll-margin-top: 6rem;
+}
+
+.app-shell .joined-projects-sidebar {
+  position: relative;
+  z-index: auto;
+  inset: auto;
+  width: auto;
+  max-height: 22rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-glass);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell .joined-projects-sidebar header {
+  padding: 0.1rem 0.1rem 0.85rem;
+  border-bottom-color: var(--color-border);
+}
+
+.app-shell .joined-projects-sidebar header p,
+.app-shell .selected-project-heading > div > p {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.app-shell .joined-projects-sidebar h2 {
+  color: var(--color-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.app-shell .joined-projects-sidebar ul {
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+.app-shell .joined-projects-sidebar button {
+  padding: 0.7rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.app-shell .joined-projects-sidebar button:hover,
+.app-shell .joined-projects-sidebar button:focus-visible,
+.app-shell .joined-projects-sidebar .project-select-button--active {
+  border-color: rgba(34, 184, 240, 0.28);
+  background: linear-gradient(105deg, #d9f5ff, #edfaff);
+  box-shadow: none;
+  transform: translateX(2px);
+}
+
+.app-shell .joined-projects-sidebar strong {
+  color: var(--color-text);
+  font-size: 0.76rem;
+}
+
+.app-shell .joined-projects-sidebar button span {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.app-shell .sidebar-message {
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+}
+
+.app-shell .sidebar-message--error {
+  color: var(--color-error);
+}
+
+.app-shell .selected-project-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(120deg, rgba(207, 243, 255, 0.55), rgba(255, 255, 255, 0.92) 46%),
+    var(--color-surface);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell .selected-project-heading {
+  padding: 1.35rem 1.5rem;
+  border-bottom-color: var(--color-border);
+}
+
+.app-shell .selected-project-heading h2 {
+  color: var(--color-text);
+  font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.app-shell .role-badge {
+  border-color: rgba(34, 184, 240, 0.35);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.app-shell .selected-project-body {
+  padding: 1.35rem 1.5rem;
+}
+
+.app-shell .field-label {
+  color: var(--color-text-secondary);
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.app-shell .selected-project-body p {
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
+}
+
+.app-shell .invite-code-row code {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-secondary);
+  color: var(--color-primary-dark);
+  font-weight: 800;
+}
+
+.app-shell .invite-code-row button {
+  border-color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.app-shell .selected-project-body .copy-feedback {
+  color: var(--color-success);
+}
+
+.app-shell .selected-project-body .copy-feedback--error {
+  color: var(--color-error);
+}
+
+/* Dashboard */
+.app-shell .project-dashboard {
+  width: min(100%, 76rem);
+  max-width: none;
+  margin: 0 auto 2rem;
+}
+
+.app-shell .dashboard-heading {
+  margin-bottom: 1.25rem;
+}
+
+.app-shell .dashboard-heading p {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.app-shell .dashboard-heading h2 {
+  color: var(--color-text);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+}
+
+.app-shell .dashboard-last-updated {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-glass);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-shell .dashboard-last-updated span {
+  color: var(--color-text-secondary);
+  font-family: inherit;
+}
+
+.app-shell .dashboard-last-updated time {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.app-shell .summary-grid {
+  gap: 1rem;
+}
+
+.app-shell .summary-card,
+.app-shell .categories-panel,
+.app-shell .chart-card {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-glass);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell .summary-card {
+  min-height: 8.5rem;
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+}
+
+.app-shell .summary-card::before,
+.app-shell .chart-card::before {
+  right: 1.25rem;
+  left: 1.25rem;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), rgba(34, 184, 240, 0));
+  box-shadow: none;
+}
+
+.app-shell .summary-card:hover,
+.app-shell .categories-panel li:hover,
+.app-shell .chart-card:hover {
+  border-color: rgba(34, 184, 240, 0.45);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-3px);
+}
+
+.app-shell .summary-card span {
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.app-shell .summary-card strong {
+  color: var(--color-primary-dark);
+  font-size: 2.2rem;
+  font-weight: 750;
+  text-shadow: none;
+}
+
+.app-shell .categories-panel {
+  border-radius: var(--radius-md);
+}
+
+.app-shell .categories-panel h3 {
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.app-shell .categories-panel li {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-secondary);
+}
+
+.app-shell .categories-panel li span {
+  color: var(--color-text-secondary);
+}
+
+.app-shell .categories-panel li strong {
+  color: var(--color-primary-dark);
+}
+
+.app-shell .dashboard-charts {
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.app-shell .chart-card {
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+}
+
+.app-shell .chart-card header p {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.app-shell .chart-card h3 {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+/* Note cards */
+.app-shell .project-list {
+  width: min(100%, 76rem);
+  max-width: none;
+  scroll-margin-top: 6rem;
+}
+
+.app-shell .project-card {
+  min-height: 17rem;
+  padding: 1.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-glass);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(14px);
+}
+
+.app-shell .project-card::before {
+  right: 1.35rem;
+  left: 1.35rem;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), transparent);
+  box-shadow: none;
+}
+
+.app-shell .project-card:hover,
+.app-shell .project-card:focus-visible {
+  border-color: rgba(34, 184, 240, 0.5);
+  box-shadow: var(--shadow-hover);
+  outline: none;
+  transform: translateY(-4px);
+}
+
+.app-shell .project-card__image {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.app-shell .project-card__labels span {
+  border-color: rgba(34, 184, 240, 0.32);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.app-shell .status-control {
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.app-shell .status-control select {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  color: var(--color-text);
+}
+
+.app-shell .status-control select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(34, 184, 240, 0.12);
+}
+
+.app-shell .project-card h2 {
+  color: var(--color-text);
+  font-size: 1.05rem;
+  font-weight: 750;
+}
+
+.app-shell .project-card__content {
+  color: var(--color-text-secondary);
+}
+
+.app-shell .project-card time {
+  border-top-color: var(--color-border);
+  color: #82919d;
+}
+
+.app-shell .project-card time + time {
+  color: var(--color-primary-dark);
+}
+
+.app-shell .message {
+  width: min(100%, 76rem);
+  max-width: none;
+  border-color: var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-secondary);
+}
+
+.app-shell .message--error {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: #fff5f5;
+  color: var(--color-error);
+}
+
+@media (max-width: 74rem) {
+  .app-shell .filter-field--search {
+    left: calc(17rem + 8rem);
+    width: min(23rem, calc(100vw - 43rem));
+  }
+}
+
+@media (max-width: 62rem) {
+  .app-shell .home-view {
+    padding-top: 6.5rem;
+  }
+
+  .app-shell .page-header,
+  .app-shell .new-project-header,
+  .app-shell .edit-project-header,
+  .app-shell .detail-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+  }
+
+  .app-shell .filter-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(10rem, 0.6fr);
+  }
+
+  .app-shell .filter-field--search,
+  .app-shell .filter-field:not(.filter-field--search) {
+    position: relative;
+    inset: auto;
+    width: 100%;
+  }
+
+  .app-shell .joined-projects-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell .joined-projects-sidebar {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+@media (max-width: 42rem) {
+  .app-shell .home-view {
+    padding: 6rem 0.8rem 3rem;
+  }
+
+  .app-shell .page-header {
+    padding: 0 1rem;
+  }
+
+  .app-shell .filter-controls,
+  .app-shell .selected-project-body {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell .dashboard-heading {
+    display: block;
+  }
+
+  .app-shell .summary-grid,
+  .app-shell .categories-panel ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Interaction recovery: keep controls above decoration and out of clipped sidebars. */
+.app-modal-root {
+  position: fixed;
+  z-index: 300;
+  inset: 0;
+  pointer-events: none;
+}
+
+.app-modal-root .dialog-backdrop,
+.app-modal-root .create-dialog,
+.app-modal-root .join-dialog {
+  pointer-events: auto;
+}
+
+.app-shell .page-header .filter-field--search {
+  position: static;
+  flex: 1 1 24rem;
+  width: auto;
+  max-width: 34rem;
+  min-width: 10rem;
+}
+
+.app-shell .page-header__title,
+.app-shell .new-project-link {
+  flex: 0 0 auto;
+}
+
+.app-shell .page-header .new-project-link {
+  position: static;
+  inset: auto;
+}
+
+.app-shell .filter-field--mobile-search {
+  display: none;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Decorative layers must never intercept application controls. */
+.app-shell .home-view::before,
+.app-shell .home-view::after,
+.app-shell .project-card::before,
+.app-shell .summary-card::before,
+.app-shell .chart-card::before,
+.app-shell .new-project-view .form-panel::before,
+.app-shell .edit-project-view .form-panel::before,
+.app-shell .edit-project-view .state-message::before,
+.app-shell .project-detail-view .state-message::before,
+.app-shell .detail-card::before,
+.app-navigation__item::before,
+.ui-flow-frame::before,
+.ui-flow-frame::after {
+  pointer-events: none;
+}
+
+.app-shell .joined-projects-sidebar button {
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.app-shell .joined-projects-sidebar button:focus-visible {
+  outline: 3px solid rgba(34, 184, 240, 0.24);
+  outline-offset: 2px;
+}
+
+@media (max-width: 79.9375rem) {
+  .app-shell .page-header,
+  .app-shell .new-project-header,
+  .app-shell .edit-project-header,
+  .app-shell .detail-header {
+    position: fixed;
+    right: 0;
+    left: 14rem;
+  }
+}
+
+@media (max-width: 62rem) {
+  .app-shell .page-header .filter-field--search {
+    display: none;
+  }
+
+  .app-shell .filter-field--mobile-search {
+    display: grid;
+  }
+
+  .app-shell .filter-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(10rem, 0.6fr);
+  }
+}
+
+@media (max-width: 47.9375rem) {
+  .app-shell .page-header,
+  .app-shell .new-project-header,
+  .app-shell .edit-project-header,
+  .app-shell .detail-header {
+    left: 0;
+  }
+
+  .app-shell .filter-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Keep note search, filters and results in one visual region. */
+.app-shell .notes-section {
+  width: min(100%, 76rem);
+  margin: 0 auto;
+  scroll-margin-top: 6rem;
+}
+
+.app-shell .notes-section__heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.app-shell .notes-section__heading p {
+  margin: 0 0 0.25rem;
+  color: var(--color-primary-dark);
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.app-shell .notes-section__heading h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  letter-spacing: -0.04em;
+}
+
+.app-shell .notes-section__heading > span {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.app-shell .notes-section .filter-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, 15rem);
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0 0 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-shell .notes-section .filter-field--search,
+.app-shell .notes-section .filter-field:not(.filter-field--search) {
+  position: relative;
+  z-index: auto;
+  inset: auto;
+  display: grid;
+  width: 100%;
+  max-width: none;
+}
+
+.app-shell .notes-section .project-list,
+.app-shell .notes-section .message {
+  width: 100%;
+}
+
+@media (max-width: 47.9375rem) {
+  .app-shell .notes-section .filter-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Final polish: shared interaction and state language */
+.ui-icon {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.app-shell button,
+.app-shell input,
+.app-shell select,
+.app-shell textarea,
+.app-shell a {
+  transition-duration: var(--transition-fast);
+}
+
+.app-shell button:not(:disabled):active,
+.app-shell .new-project-link:active,
+.app-shell .back-link:active,
+.app-shell .edit-button:active {
+  transform: scale(0.98);
+}
+
+.app-shell button:disabled,
+.app-shell input:disabled,
+.app-shell select:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.55);
+  opacity: 0.52;
+}
+
+.app-shell input,
+.app-shell select {
+  min-height: 2.75rem;
+}
+
+.app-shell textarea {
+  min-height: 8rem;
+}
+
+.app-shell .new-project-link,
+.app-shell .back-link,
+.app-shell .edit-button,
+.app-shell .delete-button,
+.app-shell .detail-actions button {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+}
+
+.app-shell .project-card__labels span,
+.app-shell .category-tag,
+.app-shell .status-tag,
+.app-shell .categories-panel h3 {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.app-shell .project-card__labels .ui-icon,
+.app-shell .category-tag .ui-icon,
+.app-shell .status-tag .ui-icon {
+  width: 0.82rem;
+  height: 0.82rem;
+}
+
+/* A restrained moving accent for important surfaces. */
+.ui-flow-frame {
+  position: relative;
+  isolation: isolate;
+}
+
+.ui-flow-frame::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border: 1px solid rgba(34, 184, 240, 0.3);
+  border-radius: inherit;
+  background: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 34%,
+      rgba(34, 184, 240, 0.8) 49%,
+      transparent 64%,
+      transparent 100%
+    )
+    top left / 220% 2px no-repeat;
+  content: '';
+  opacity: 0.72;
+  pointer-events: none;
+  animation: cyan-frame-flow 6s linear infinite;
+  transition:
+    opacity var(--transition-fast),
+    filter var(--transition-fast);
+}
+
+.ui-flow-frame:hover::after {
+  filter: drop-shadow(0 2px 5px rgba(34, 184, 240, 0.22));
+  opacity: 1;
+}
+
+@keyframes cyan-frame-flow {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+
+/* One natural scroll container: .app-main */
+.app-main > * {
+  min-width: 0;
+  animation: page-enter 240ms ease both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-shell .home-view,
+.app-shell .new-project-view,
+.app-shell .edit-project-view,
+.app-shell .project-detail-view {
+  min-height: 100%;
+  overflow-x: clip;
+}
+
+/* Header/search alignment */
+.app-shell .page-header,
+.app-shell .new-project-header,
+.app-shell .edit-project-header,
+.app-shell .detail-header {
+  left: 17rem;
+}
+
+.app-shell .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.app-shell .new-project-link .ui-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.app-shell .filter-field--search::before {
+  display: none;
+}
+
+.app-shell .search-input {
+  position: relative;
+}
+
+.app-shell .search-input .ui-icon {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 0.9rem;
+  color: var(--color-text-secondary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.app-shell .search-input input {
+  width: 100%;
+  padding-left: 2.65rem;
+}
+
+/* Dashboard and note cards */
+.app-shell .summary-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-content: center;
+  column-gap: 0.65rem;
+}
+
+.app-shell .summary-card > .ui-icon {
+  grid-row: 1 / span 2;
+  align-self: start;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0.12rem;
+  color: var(--color-primary-dark);
+}
+
+.app-shell .summary-card strong {
+  line-height: 1.1;
+}
+
+.app-shell .summary-card:hover,
+.app-shell .categories-panel li:hover,
+.app-shell .chart-card:hover,
+.app-shell .project-card:hover,
+.app-shell .project-card:focus-visible {
+  transform: translateY(-2px);
+}
+
+.app-shell .status-control {
+  grid-template-columns: auto minmax(7.5rem, 10rem);
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.app-shell .status-control select {
+  min-height: 2.5rem;
+  padding: 0.45rem 2rem 0.45rem 0.65rem;
+  font-size: 0.74rem;
+}
+
+.app-shell .project-card__content {
+  min-height: 4.6rem;
+}
+
+.app-shell .project-card__actions a {
+  min-height: 2.75rem;
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.app-shell .project-card__actions a:hover,
+.app-shell .project-card__actions a:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.app-shell .project-card__actions .ui-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+/* Unified loading, empty and error feedback */
+.app-shell .ui-notice {
+  position: relative;
+  min-height: 5rem;
+  padding: 1.35rem 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-secondary);
+}
+
+.app-shell .ui-notice--loading {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.app-shell .ui-notice--loading::before,
+.app-shell .sidebar-message--loading::before {
+  position: static;
+  inset: auto;
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--color-primary-soft);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  content: '';
+  animation: ui-spin 800ms linear infinite;
+}
+
+.app-shell .ui-notice--error {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: #fff6f6;
+  color: #c93737;
+}
+
+.app-shell .ui-notice--empty {
+  background:
+    linear-gradient(135deg, rgba(207, 243, 255, 0.24), transparent),
+    var(--color-surface);
+  text-align: center;
+}
+
+@keyframes ui-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dialogs and transient notices */
+.app-shell .dialog-backdrop {
+  animation: backdrop-enter 180ms ease both;
+}
+
+.app-shell .create-dialog,
+.app-shell .join-dialog {
+  animation: dialog-enter 220ms ease both;
+}
+
+.app-shell .success-toast,
+.app-shell .copy-feedback,
+.app-shell .error-message {
+  animation: toast-enter 220ms ease both;
+}
+
+@keyframes backdrop-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.app-shell .close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+}
+
+.app-shell .open-button,
+.app-shell .copy-button,
+.app-shell .invite-code-row button {
+  gap: 0.45rem;
+  min-height: 2.75rem;
+}
+
+.app-shell .success-panel,
+.app-shell .created-invite-code,
+.app-shell .invite-code-row {
+  border-radius: var(--radius-md);
+}
+
+.app-shell .success-toast {
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: var(--radius-sm);
+  background: #f0fff5;
+  box-shadow: var(--shadow-md);
+  color: #15803d;
+}
+
+/* Detail consistency */
+.app-shell .project-detail-view .back-icon {
+  transform: rotate(180deg);
+}
+
+.app-shell .detail-card {
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.app-shell .detail-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Tablet: compact rail, fixed header, one main scroll area. */
+@media (max-width: 79.9375rem) {
+  .app-shell .page-header,
+  .app-shell .new-project-header,
+  .app-shell .edit-project-header,
+  .app-shell .detail-header {
+    position: fixed;
+    right: 0;
+    left: 14rem;
+  }
+
+  .app-shell .home-view,
+  .app-shell .new-project-view,
+  .app-shell .edit-project-view,
+  .app-shell .project-detail-view {
+    padding-top: 6.5rem;
+  }
+
+  .app-shell .filter-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(10rem, 0.6fr);
+  }
+
+  .app-shell .filter-field--search,
+  .app-shell .filter-field:not(.filter-field--search) {
+    position: relative;
+    inset: auto;
+    width: 100%;
+  }
+
+  .app-shell .joined-projects-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell .joined-projects-sidebar {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+/* Mobile drawer and content wrapping. */
+@media (max-width: 47.9375rem) {
+  .app-shell .page-header,
+  .app-shell .new-project-header,
+  .app-shell .edit-project-header,
+  .app-shell .detail-header {
+    left: 0;
+    height: 4.5rem;
+    padding-right: 0.75rem;
+    padding-left: 4.1rem;
+  }
+
+  .app-shell .home-view,
+  .app-shell .new-project-view,
+  .app-shell .edit-project-view,
+  .app-shell .project-detail-view {
+    padding: 5.75rem 0.8rem 3rem;
+  }
+
+  .app-shell .page-header__title > span,
+  .app-shell .header-nav,
+  .app-shell .header-status {
+    display: none;
+  }
+
+  .app-shell .page-header h1 {
+    font-size: 0.95rem;
+  }
+
+  .app-shell .new-project-link {
+    min-height: 2.75rem;
+    padding-inline: 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .app-shell .filter-controls,
+  .app-shell .selected-project-body,
+  .app-shell .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell .dashboard-heading {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .app-shell .dashboard-last-updated {
+    justify-self: stretch;
+  }
+
+  .app-shell .summary-grid,
+  .app-shell .categories-panel ul {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell .detail-card__heading,
+  .app-shell .selected-project-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .app-shell .note-meta {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .app-shell .note-meta div:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .app-shell .detail-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell .edit-button,
+  .app-shell .delete-button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .ui-flow-frame::after {
+    background-position: 50% 0;
+  }
+}
+
+@media (max-width: 30rem) {
+  .app-shell .summary-grid,
+  .app-shell .categories-panel ul {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Authentication */
+.app-shell .auth-controls {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-shell .auth-user {
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-shell .auth-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-color: rgba(34, 184, 240, 0.38);
+  box-shadow: 0 5px 14px rgba(31, 89, 117, 0.12);
+}
+
+.app-shell .auth-avatar--fallback {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.app-shell .auth-user-details strong {
+  color: var(--color-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.app-shell .auth-user-details span {
+  color: var(--color-text-secondary);
+  font-size: 0.58rem;
+}
+
+.app-shell .auth-user > button {
+  min-height: 2.15rem;
+  border-color: rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-sm);
+  background: #fff5f5;
+  color: #c43d3d;
+}
+
+.app-shell .auth-user > button:hover:not(:disabled),
+.app-shell .auth-user > button:focus-visible {
+  border-color: rgba(239, 68, 68, 0.45);
+  color: var(--color-error);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+}
+
+.app-shell .login-screen {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(207, 243, 255, 0.9), transparent 28rem),
+    var(--color-bg);
+}
+
+.app-shell .login-panel {
+  display: grid;
+  justify-items: center;
+  width: min(100%, 26rem);
+  padding: 2.75rem 2.5rem 2.25rem;
+  border: 2px solid rgba(34, 184, 240, 0.75);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(145deg, rgba(207, 243, 255, 0.72), rgba(255, 255, 255, 0.94));
+  box-shadow: 0 24px 70px rgba(31, 89, 117, 0.16);
+  text-align: center;
+}
+
+.app-shell .login-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  box-shadow: 0 12px 24px rgba(34, 184, 240, 0.28);
+  color: #ffffff;
+  font-size: 1.8rem;
+}
+
+.app-shell .login-panel h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.75rem;
+  letter-spacing: -0.04em;
+}
+
+.app-shell .login-subtitle {
+  margin: 0.35rem 0 2.2rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.app-shell .login-panel > strong {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.app-shell .login-description {
+  max-width: 19rem;
+  margin: 0.85rem 0 2rem;
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.app-shell .login-panel .google-login-button {
+  gap: 0.65rem;
+  min-height: 3.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.app-shell .login-panel .google-login-button:hover:not(:disabled),
+.app-shell .login-panel .google-login-button:focus-visible {
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  box-shadow: var(--shadow-hover);
+}
+
+.app-shell .login-panel > small {
+  margin-top: 1.5rem;
+  color: #8796a2;
+  font-size: 0.62rem;
+}
+
+/* Create and join controls */
+.app-shell .project-create-panel .open-button,
+.app-shell .project-join-panel .open-button {
+  min-height: 2.65rem;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--color-primary), #43c9f5);
+  box-shadow: 0 8px 18px rgba(34, 184, 240, 0.18);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.app-shell .project-join-panel .open-button {
+  border-color: var(--color-border);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  color: var(--color-primary-dark);
+}
+
+.app-shell .project-create-panel .open-button span,
+.app-shell .project-join-panel .open-button span {
+  color: currentColor;
+}
+
+.app-shell .project-create-panel .open-button:hover,
+.app-shell .project-create-panel .open-button:focus-visible,
+.app-shell .project-join-panel .open-button:hover,
+.app-shell .project-join-panel .open-button:focus-visible {
+  border-color: var(--color-primary-hover);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+.app-shell .dialog-backdrop {
+  background: rgba(31, 52, 65, 0.3);
+  backdrop-filter: blur(12px);
+}
+
+.app-shell .create-dialog,
+.app-shell .join-dialog {
+  border: 1px solid rgba(34, 184, 240, 0.38);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 30px 80px rgba(31, 89, 117, 0.22);
+}
+
+.app-shell .dialog-heading {
+  border-bottom-color: var(--color-border);
+}
+
+.app-shell .dialog-heading p {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-weight: 750;
+}
+
+.app-shell .dialog-heading h2 {
+  color: var(--color-text);
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.app-shell .close-button {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+.app-shell .create-form .form-field label,
+.app-shell .join-form .form-field label {
+  color: var(--color-text);
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.app-shell .create-form .form-field label span {
+  color: var(--color-primary-dark);
+}
+
+.app-shell .create-form .form-field label .optional {
+  color: var(--color-text-secondary);
+}
+
+.app-shell .create-form .form-field input,
+.app-shell .create-form .form-field textarea,
+.app-shell .join-form .code-input-wrap input {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app-shell .create-form .form-field input:focus,
+.app-shell .create-form .form-field textarea:focus,
+.app-shell .join-form .code-input-wrap input:focus {
+  border-color: var(--color-primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(34, 184, 240, 0.12);
+}
+
+.app-shell .create-form .form-field input::placeholder,
+.app-shell .create-form .form-field textarea::placeholder,
+.app-shell .join-form .code-input-wrap input::placeholder {
+  color: #9aa8b2;
+}
+
+.app-shell .join-form .code-input-wrap input {
+  color: var(--color-primary-dark);
+}
+
+.app-shell .join-form .code-input-wrap span,
+.app-shell .join-form .form-field small {
+  color: var(--color-text-secondary);
+}
+
+.app-shell .create-form .error-message,
+.app-shell .join-form .error-message {
+  border-color: rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-sm);
+  background: #fff5f5;
+  color: var(--color-error);
+}
+
+.app-shell .create-form .primary-button,
+.app-shell .join-form .primary-button,
+.app-shell .success-panel .primary-button {
+  border-color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  box-shadow: 0 8px 18px rgba(34, 184, 240, 0.18);
+  color: #ffffff;
+}
+
+.app-shell .create-form .secondary-button,
+.app-shell .join-form .secondary-button {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  color: var(--color-text-secondary);
+}
+
+.app-shell .success-label {
+  color: var(--color-success);
+  font-family: inherit;
+  font-weight: 750;
+}
+
+.app-shell .success-panel h3 {
+  color: var(--color-text);
+}
+
+.app-shell .success-panel p,
+.app-shell .success-panel small {
+  color: var(--color-text-secondary);
+}
+
+.app-shell .success-panel strong {
+  border-color: rgba(34, 184, 240, 0.4);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  text-shadow: none;
+}
+
+.app-shell .success-panel .copy-button {
+  border-color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.app-shell .success-panel .copy-feedback {
+  color: var(--color-success);
+}
+
+.app-shell .success-panel .copy-feedback--error {
+  color: var(--color-error);
+}
+
+.app-shell .success-toast {
+  border-color: rgba(34, 197, 94, 0.3);
+  border-radius: var(--radius-sm);
+  background: #effcf3;
+  box-shadow: var(--shadow-md);
+  color: #168a42;
+}
+
+/* Note forms */
+.app-shell .new-project-view,
+.app-shell .edit-project-view,
+.app-shell .project-detail-view {
+  position: relative;
+  min-height: 100vh;
+  padding: 7rem clamp(1rem, 3vw, 3rem) 4rem;
+  color: var(--color-text);
+  background:
+    radial-gradient(circle at 85% 0%, rgba(207, 243, 255, 0.7), transparent 26rem),
+    var(--color-bg);
+}
+
+.app-shell .new-project-header,
+.app-shell .edit-project-header,
+.app-shell .detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-shell .new-project-header .brand,
+.app-shell .edit-project-header .brand,
+.app-shell .detail-header .brand {
+  color: var(--color-primary-dark);
+  font-size: 1rem;
+  font-weight: 750;
+  text-shadow: none;
+}
+
+.app-shell .header-nav,
+.app-shell .header-status {
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.app-shell .new-project-view .form-panel,
+.app-shell .edit-project-view .form-panel {
+  width: min(100%, 48rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-glass);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell .new-project-view .form-panel::before,
+.app-shell .edit-project-view .form-panel::before {
+  right: 2rem;
+  left: 2rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-primary), rgba(34, 184, 240, 0));
+  box-shadow: none;
+}
+
+.app-shell .new-project-view .panel-heading,
+.app-shell .edit-project-view .panel-heading {
+  border-bottom-color: var(--color-border);
+}
+
+.app-shell .new-project-view .panel-heading p,
+.app-shell .edit-project-view .panel-heading p {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-weight: 750;
+}
+
+.app-shell .new-project-view h1,
+.app-shell .edit-project-view h1 {
+  color: var(--color-text);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
+.app-shell .new-project-view .edit-mode,
+.app-shell .edit-project-view .edit-mode {
+  color: var(--color-success);
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.app-shell .new-project-view .form-field label,
+.app-shell .edit-project-view .form-field label {
+  color: var(--color-text);
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.app-shell .new-project-view input,
+.app-shell .new-project-view select,
+.app-shell .new-project-view textarea,
+.app-shell .edit-project-view input,
+.app-shell .edit-project-view select,
+.app-shell .edit-project-view textarea {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app-shell .new-project-view input:focus,
+.app-shell .new-project-view select:focus,
+.app-shell .new-project-view textarea:focus,
+.app-shell .edit-project-view input:focus,
+.app-shell .edit-project-view select:focus,
+.app-shell .edit-project-view textarea:focus {
+  border-color: var(--color-primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(34, 184, 240, 0.12);
+}
+
+.app-shell .new-project-view input::placeholder,
+.app-shell .new-project-view textarea::placeholder,
+.app-shell .edit-project-view input::placeholder,
+.app-shell .edit-project-view textarea::placeholder {
+  color: #9aa8b2;
+}
+
+.app-shell .new-project-view select option,
+.app-shell .edit-project-view select option {
+  background: #ffffff;
+  color: var(--color-text);
+}
+
+.app-shell .new-project-view .form-actions button,
+.app-shell .edit-project-view .form-actions button {
+  min-height: 3.3rem;
+  border-color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  box-shadow: 0 10px 24px rgba(34, 184, 240, 0.2);
+  color: #ffffff;
+  font-size: 0.92rem;
+}
+
+.app-shell .new-project-view .back-link,
+.app-shell .edit-project-view .back-link {
+  min-height: 3.3rem;
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+}
+
+.app-shell .new-project-view .error-message,
+.app-shell .edit-project-view .error-message,
+.app-shell .edit-project-view .state-message--error {
+  border-color: rgba(239, 68, 68, 0.28);
+  border-radius: var(--radius-sm);
+  background: #fff5f5;
+  color: var(--color-error);
+}
+
+.app-shell .edit-project-view .state-message {
+  width: min(100%, 48rem);
+  margin: 0 auto;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-secondary);
+}
+
+.app-shell .edit-project-view .state-message a {
+  color: var(--color-primary-dark);
+}
+
+.app-shell .new-project-footer,
+.app-shell .edit-project-footer {
+  color: #93a4af;
+  font-family: inherit;
+}
+
+/* Note detail */
+.app-shell .detail-shell {
+  width: min(100%, 62rem);
+}
+
+.app-shell .project-detail-view .back-link {
+  border-color: var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+  color: var(--color-primary-dark);
+}
+
+.app-shell .project-detail-view .back-link:hover,
+.app-shell .project-detail-view .back-link:focus-visible {
+  border-color: var(--color-primary);
+  color: var(--color-primary-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+.app-shell .project-detail-view .state-message,
+.app-shell .detail-card {
+  border-color: var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-glass);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell .project-detail-view .state-message::before,
+.app-shell .detail-card::before {
+  right: 2rem;
+  left: 2rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-primary), transparent);
+  box-shadow: none;
+}
+
+.app-shell .project-detail-view .state-message {
+  color: var(--color-text-secondary);
+}
+
+.app-shell .project-detail-view .state-message--error {
+  color: var(--color-error);
+}
+
+.app-shell .detail-card__heading {
+  border-bottom-color: var(--color-border);
+}
+
+.app-shell .eyebrow {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-weight: 750;
+}
+
+.app-shell .project-detail-view h1 {
+  color: var(--color-text);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
+.app-shell .category-tag {
+  border-color: rgba(34, 184, 240, 0.3);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.app-shell .status-tag {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+.app-shell .status-tag i {
+  background: var(--color-primary);
+  box-shadow: none;
+}
+
+.app-shell .note-meta {
+  border-bottom-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.app-shell .note-meta div {
+  border-left-color: var(--color-border);
+}
+
+.app-shell .note-meta dt {
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.app-shell .note-meta dd {
+  color: var(--color-text);
+  font-weight: 650;
+}
+
+.app-shell .content-section h2 {
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-weight: 750;
+}
+
+.app-shell .content-section p {
+  color: #45535e;
+}
+
+.app-shell .note-image img {
+  border-color: var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+}
+
+.app-shell .delete-error {
+  border-color: rgba(239, 68, 68, 0.28);
+  border-radius: var(--radius-sm);
+  background: #fff5f5;
+  color: var(--color-error);
+}
+
+.app-shell .edit-button {
+  border-color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  box-shadow: 0 8px 18px rgba(34, 184, 240, 0.18);
+  color: #ffffff;
+}
+
+.app-shell .delete-button {
+  border-color: rgba(239, 68, 68, 0.32);
+  border-radius: var(--radius-sm);
+  background: #fff1f1;
+  box-shadow: none;
+  color: #d93636;
+}
+
+.app-shell .detail-card__footer {
+  border-top-color: var(--color-border);
+  background: var(--color-bg-secondary);
+  color: #8797a2;
+  font-family: inherit;
+}
+
+@media (max-width: 62rem) {
+  .app-shell .new-project-view,
+  .app-shell .edit-project-view,
+  .app-shell .project-detail-view {
+    padding-top: 6.5rem;
+  }
+}
+
+@media (max-width: 42rem) {
+  .app-shell .new-project-view,
+  .app-shell .edit-project-view,
+  .app-shell .project-detail-view {
+    padding: 6rem 0.8rem 3rem;
+    background: var(--color-bg);
+  }
+
+  .app-shell .login-panel {
+    padding: 2rem 1.25rem 1.75rem;
+  }
+}
+
+/* Final interaction safeguards (kept last to win over legacy scoped layout rules). */
+.app-modal-root {
+  position: fixed;
+  z-index: 300;
+  inset: 0;
+  pointer-events: none;
+}
+
+.app-modal-root .dialog-backdrop,
+.app-modal-root .create-dialog,
+.app-modal-root .join-dialog {
+  pointer-events: auto;
+}
+
+.app-shell .page-header .filter-field--search {
+  position: static;
+  inset: auto;
+  flex: 1 1 24rem;
+  width: auto;
+  max-width: 34rem;
+  min-width: 10rem;
+}
+
+.app-shell .page-header__title,
+.app-shell .new-project-link {
+  flex: 0 0 auto;
+}
+
+.app-shell .page-header .new-project-link {
+  position: static;
+  inset: auto;
+}
+
+.app-shell .filter-field--mobile-search {
+  display: none;
+}
+
+.app-shell .home-view::before,
+.app-shell .home-view::after,
+.app-shell .project-card::before,
+.app-shell .summary-card::before,
+.app-shell .chart-card::before,
+.app-shell .new-project-view .form-panel::before,
+.app-shell .edit-project-view .form-panel::before,
+.app-shell .edit-project-view .state-message::before,
+.app-shell .project-detail-view .state-message::before,
+.app-shell .detail-card::before,
+.app-navigation__item::before,
+.ui-flow-frame::before,
+.ui-flow-frame::after {
+  pointer-events: none;
+}
+
+@media (max-width: 79.9375rem) {
+  .app-shell .page-header,
+  .app-shell .new-project-header,
+  .app-shell .edit-project-header,
+  .app-shell .detail-header {
+    position: fixed;
+    right: 0;
+    left: 14rem;
+  }
+}
+
+@media (max-width: 62rem) {
+  .app-shell .page-header .filter-field--search {
+    display: none;
+  }
+
+  .app-shell .filter-field--mobile-search {
+    display: grid;
+  }
+
+  .app-shell .filter-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(10rem, 0.6fr);
+  }
+}
+
+@media (max-width: 47.9375rem) {
+  .app-shell .page-header,
+  .app-shell .new-project-header,
+  .app-shell .edit-project-header,
+  .app-shell .detail-header {
+    left: 0;
+  }
+
+  .app-shell .filter-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Notes toolbar is intentionally adjacent to the filtered result list. */
+.app-shell .notes-section {
+  width: min(100%, 76rem);
+  margin: 0 auto;
+  scroll-margin-top: 6rem;
+}
+
+.app-shell .notes-section__heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.app-shell .notes-section__heading p {
+  margin: 0 0 0.25rem;
+  color: var(--color-primary-dark);
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.app-shell .notes-section__heading h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  letter-spacing: -0.04em;
+}
+
+.app-shell .notes-section__heading > span {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.app-shell .notes-section .filter-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, 15rem);
+  gap: 0.75rem;
+  width: 100%;
+  height: auto;
+  margin: 0 0 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-shell .notes-section .filter-field--search,
+.app-shell .notes-section .filter-field:not(.filter-field--search) {
+  position: relative;
+  z-index: auto;
+  inset: auto;
+  display: grid;
+  width: 100%;
+  max-width: none;
+}
+
+.app-shell .notes-section .project-list,
+.app-shell .notes-section .message {
+  width: 100%;
+}
+
+@media (max-width: 47.9375rem) {
+  .app-shell .notes-section .filter-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Align both filter labels and control baselines. */
+.app-shell .notes-section .filter-controls {
+  align-items: end;
+}
+
+.app-shell .notes-section .filter-field {
+  grid-template-rows: 1.25rem 3rem;
+  gap: 0.5rem;
+  align-content: end;
+}
+
+.app-shell .notes-section .filter-field label,
+.app-shell .notes-section .filter-field--search label {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  overflow: visible;
+  clip: auto;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  white-space: normal;
+}
+
+.app-shell .notes-section .search-input {
+  position: relative;
+  height: 3rem;
+}
+
+.app-shell .notes-section .search-input .ui-icon {
+  top: 50%;
+  left: 1rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  transform: translateY(-50%);
+}
+
+.app-shell .notes-section .filter-field input,
+.app-shell .notes-section .filter-field select {
+  width: 100%;
+  height: 3rem;
+  min-height: 3rem;
+  margin: 0;
+}
+
+.app-shell .notes-section .filter-field--search input {
+  padding: 0 1rem 0 3rem;
+}
+
+.app-shell .notes-section .filter-field select {
+  padding-block: 0;
+}

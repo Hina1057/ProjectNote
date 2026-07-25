@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import UiIcon from '@/components/UiIcon.vue'
 import type { Project, ProjectStatus } from '@/types/project'
 import { formatDate } from '@/utils/formatDate'
+import { getCategoryLabel, getStatusLabel } from '@/utils/uiLabels'
 
 const statusOptions: ProjectStatus[] = ['Todo', 'In Progress', 'Done']
 
@@ -51,7 +53,7 @@ const goToDetail = () => {
     />
 
     <div class="project-card__labels">
-      <span>{{ project.category }}</span>
+      <span><UiIcon name="tag" />{{ getCategoryLabel(project.category) }}</span>
     </div>
 
     <label
@@ -68,10 +70,10 @@ const goToDetail = () => {
         @change="handleStatusChange"
       >
         <option v-if="!hasSelectableStatus" :value="project.status" disabled>
-          {{ project.status }}
+          {{ getStatusLabel(project.status) }}
         </option>
         <option v-for="status in statusOptions" :key="status" :value="status">
-          {{ status }}
+          {{ getStatusLabel(status) }}
         </option>
       </select>
     </label>
@@ -81,7 +83,23 @@ const goToDetail = () => {
     <time v-if="project.createdAt" :datetime="project.createdAt">
       作成日：{{ formattedCreatedAt }}
     </time>
-    <time :datetime="updatedAtValue || undefined">Updated&nbsp; {{ formattedUpdatedAt }}</time>
+    <time :datetime="updatedAtValue || undefined">更新日：{{ formattedUpdatedAt }}</time>
+    <div class="project-card__actions" @click.stop @keydown.stop>
+      <RouterLink
+        :to="{ name: 'edit-project', params: { id: project.id } }"
+        :aria-label="`${project.title}を編集`"
+      >
+        <UiIcon name="edit" />
+        編集
+      </RouterLink>
+      <RouterLink
+        :to="{ name: 'project-detail', params: { id: project.id } }"
+        :aria-label="`${project.title}の詳細を表示`"
+      >
+        <UiIcon name="eye" />
+        詳細
+      </RouterLink>
+    </div>
   </article>
 </template>
 
@@ -195,6 +213,10 @@ h2 {
   color: #aab8cb;
   font-size: 0.875rem;
   line-height: 1.75;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 time {
@@ -210,5 +232,25 @@ time + time {
   padding-top: 0.375rem;
   border-top: 0;
   color: #8ca4be;
+}
+
+.project-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.project-card__actions a {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #2b435d;
+  border-radius: 0.55rem;
+  color: #bcefff;
+  font-size: 0.75rem;
+  text-decoration: none;
 }
 </style>

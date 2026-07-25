@@ -13,6 +13,7 @@ import {
 } from 'chart.js'
 import { Bar, Doughnut } from 'vue-chartjs'
 import type { Project, ProjectCategory, ProjectStatus } from '@/types/project'
+import { getCategoryLabel, getStatusLabel } from '@/utils/uiLabels'
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
@@ -24,40 +25,40 @@ const statuses: ProjectStatus[] = ['Todo', 'In Progress', 'Done']
 const categories: ProjectCategory[] = ['Bug', 'Idea', 'Task', 'Meeting', 'Reference', 'UI']
 
 const statusChartData = computed<ChartData<'doughnut'>>(() => ({
-  labels: statuses,
+  labels: statuses.map(getStatusLabel),
   datasets: [
     {
       data: statuses.map(
         (status) => props.projects.filter((project) => project.status === status).length,
       ),
-      backgroundColor: ['rgba(51, 228, 255, 0.82)', 'rgba(67, 133, 255, 0.82)', 'rgba(123, 97, 255, 0.82)'],
-      borderColor: ['#7cecff', '#78a8ff', '#a796ff'],
-      borderWidth: 1,
+      backgroundColor: ['#22b8f0', '#67d4f5', '#087ea4'],
+      borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+      borderWidth: 3,
       hoverOffset: 8,
     },
   ],
 }))
 
 const categoryChartData = computed<ChartData<'bar'>>(() => ({
-  labels: categories,
+  labels: categories.map(getCategoryLabel),
   datasets: [
     {
-      label: 'Notes',
+      label: 'ノート',
       data: categories.map(
         (category) => props.projects.filter((project) => project.category === category).length,
       ),
       backgroundColor: [
-        'rgba(51, 228, 255, 0.68)',
-        'rgba(44, 186, 244, 0.68)',
-        'rgba(55, 145, 239, 0.68)',
-        'rgba(72, 119, 226, 0.68)',
-        'rgba(99, 102, 218, 0.68)',
-        'rgba(126, 93, 221, 0.68)',
+        'rgba(34, 184, 240, 0.82)',
+        'rgba(73, 199, 240, 0.82)',
+        'rgba(113, 214, 245, 0.82)',
+        'rgba(8, 157, 212, 0.82)',
+        'rgba(8, 126, 164, 0.82)',
+        'rgba(155, 226, 248, 0.82)',
       ],
-      borderColor: ['#72efff', '#61d5ff', '#67b8ff', '#769cff', '#9189ff', '#ab82ff'],
-      borderWidth: 1,
-      borderRadius: 4,
-      barThickness: 18,
+      borderColor: ['#22b8f0', '#49c7f0', '#71d6f5', '#089dd4', '#087ea4', '#9be2f8'],
+      borderWidth: 0,
+      borderRadius: 8,
+      barThickness: 20,
     },
   ],
 }))
@@ -70,22 +71,22 @@ const statusChartOptions: ChartOptions<'doughnut'> = {
     legend: {
       position: 'bottom',
       labels: {
-        color: '#aebfd2',
+        color: '#667785',
         boxWidth: 10,
         boxHeight: 10,
         padding: 18,
         font: {
-          family: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+          family: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
           size: 11,
         },
       },
     },
     tooltip: {
-      backgroundColor: '#06111f',
-      borderColor: '#2c6683',
+      backgroundColor: '#17212b',
+      borderColor: '#d7e9f2',
       borderWidth: 1,
-      titleColor: '#77eaff',
-      bodyColor: '#d9e6f6',
+      titleColor: '#cff3ff',
+      bodyColor: '#ffffff',
       padding: 10,
     },
   },
@@ -100,11 +101,11 @@ const categoryChartOptions: ChartOptions<'bar'> = {
       display: false,
     },
     tooltip: {
-      backgroundColor: '#06111f',
-      borderColor: '#2c6683',
+      backgroundColor: '#17212b',
+      borderColor: '#d7e9f2',
       borderWidth: 1,
-      titleColor: '#77eaff',
-      bodyColor: '#d9e6f6',
+      titleColor: '#cff3ff',
+      bodyColor: '#ffffff',
       padding: 10,
     },
   },
@@ -112,13 +113,13 @@ const categoryChartOptions: ChartOptions<'bar'> = {
     x: {
       beginAtZero: true,
       grid: {
-        color: 'rgba(86, 132, 171, 0.16)',
+        color: 'rgba(102, 119, 133, 0.12)',
       },
       border: {
-        color: 'rgba(86, 132, 171, 0.32)',
+        color: 'rgba(102, 119, 133, 0.2)',
       },
       ticks: {
-        color: '#71859d',
+        color: '#7b8b97',
         precision: 0,
         stepSize: 1,
       },
@@ -131,9 +132,9 @@ const categoryChartOptions: ChartOptions<'bar'> = {
         display: false,
       },
       ticks: {
-        color: '#aebfd2',
+        color: '#667785',
         font: {
-          family: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+          family: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
           size: 11,
         },
       },
@@ -146,8 +147,8 @@ const categoryChartOptions: ChartOptions<'bar'> = {
   <section class="dashboard-charts" aria-label="プロジェクト統計グラフ">
     <article class="chart-card">
       <header>
-        <p>STATUS DISTRIBUTION</p>
-        <h3>ステータス</h3>
+        <p>ステータス別</p>
+        <h3>ノートの進捗状況</h3>
       </header>
       <div class="chart-frame chart-frame--status">
         <Doughnut :data="statusChartData" :options="statusChartOptions" />
@@ -156,8 +157,8 @@ const categoryChartOptions: ChartOptions<'bar'> = {
 
     <article class="chart-card">
       <header>
-        <p>CATEGORY COUNT</p>
-        <h3>カテゴリ</h3>
+        <p>カテゴリ別</p>
+        <h3>カテゴリごとの件数</h3>
       </header>
       <div class="chart-frame">
         <Bar :data="categoryChartData" :options="categoryChartOptions" />

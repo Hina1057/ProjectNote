@@ -2,6 +2,11 @@ services:
   server:
     build:
       context: ./server
+    env_file:
+      - path: ./.env.local
+        required: false
+      - path: ./app/.env.local
+        required: false
     ports:
       - "5173:5173"
     volumes:
@@ -11,6 +16,11 @@ services:
   app:
     build:
       context: ./app
+    env_file:
+      - path: ./.env.local
+        required: false
+      - path: ./app/.env.local
+        required: false
     ports:
       - "8080:5173"
     volumes:

@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { useSelectedWorkspace } from '@/composables/useSelectedWorkspace'
+import { auth } from '@/firebase'
+import { createActivity } from '@/services/activityService'
 import type { Project, ProjectCategory } from '@/types/project'
+import { getCategoryLabel, getStatusLabel } from '@/utils/uiLabels'
 
 const API_URL = 'http://localhost:5173/projects'
 const categoryOptions: ProjectCategory[] = ['Bug', 'Idea', 'UI', 'Task', 'Meeting', 'Reference']
 const statusOptions = ['Todo', 'In Progress', 'Done'] as const
 
 const router = useRouter()
+const { selectedWorkspaceId } = useSelectedWorkspace()
 const isSubmitting = ref(false)
 const errorMessage = ref('')
 const form = reactive({
@@ -23,6 +28,11 @@ const createProject = async () => {
 
   const title = form.title.trim()
   const content = form.content.trim()
+
+  if (!selectedWorkspaceId.value) {
+    errorMessage.value = '先にプロジェクトを選択してください'
+    return
+  }
 
   if (!title || !content) {
     errorMessage.value = 'タイトルと内容は必須です。空白以外の文字を入力してください。'
@@ -43,6 +53,7 @@ const createProject = async () => {
     const now = new Date().toISOString()
     const newProject: Project = {
       id: nextId,
+      workspaceId: selectedWorkspaceId.value,
       title,
       category: form.category,
       content,
@@ -64,7 +75,16 @@ const createProject = async () => {
       throw new Error(`HTTP error: ${response.status}`)
     }
 
-    await router.push({ name: 'home' })
+    await createActivity({
+      workspaceId: newProject.workspaceId,
+      type: 'note_created',
+      user: auth.currentUser,
+      targetId: newProject.id,
+      targetTitle: newProject.title,
+      message: `${newProject.title}を作成しました`,
+    })
+
+    await router.push({ name: 'notes' })
   } catch (error) {
     console.error(error)
     errorMessage.value = 'プロジェクトノートの登録に失敗しました。'
@@ -78,19 +98,23 @@ const createProject = async () => {
   <main class="new-project-view">
     <header class="new-project-header">
       <span class="brand">ProjectNote</span>
-      <span class="header-nav" aria-hidden="true">ノート　 プロジェクト　 アーカイブ</span>
+      <span class="header-nav">新規ノート</span>
     </header>
 
     <section class="form-panel">
       <div class="panel-heading">
         <div>
-          <p>SYSTEM ACTION&nbsp; // &nbsp;CREATE NOTE</p>
+          <p>ノート作成</p>
           <h1>新規ノート作成</h1>
         </div>
-        <span class="edit-mode">● EDIT_MODE: ACTIVE</span>
+        <span class="edit-mode">入力中</span>
       </div>
 
       <form class="project-form" @submit.prevent="createProject">
+        <p v-if="!selectedWorkspaceId" class="error-message" role="status">
+          先にプロジェクトを選択してください
+        </p>
+
         <div class="form-field">
           <label for="title">タイトル</label>
           <input
@@ -108,7 +132,7 @@ const createProject = async () => {
             <label for="category">カテゴリ</label>
             <select id="category" v-model="form.category" name="category">
               <option v-for="category in categoryOptions" :key="category" :value="category">
-                {{ category }}
+                {{ getCategoryLabel(category) }}
               </option>
             </select>
           </div>
@@ -117,7 +141,7 @@ const createProject = async () => {
             <label for="status">ステータス</label>
             <select id="status" v-model="form.status" name="status">
               <option v-for="status in statusOptions" :key="status" :value="status">
-                {{ status }}
+                {{ getStatusLabel(status) }}
               </option>
             </select>
           </div>
@@ -146,20 +170,20 @@ const createProject = async () => {
           />
         </div>
 
-        <p v-if="errorMessage" class="error-message" role="alert">{{ errorMessage }}</p>
+        <p v-if="errorMessage" class="error-message" role="alert" aria-live="assertive">
+          {{ errorMessage }}
+        </p>
 
         <div class="form-actions">
-          <button type="submit" :disabled="isSubmitting">
+          <button type="submit" :disabled="isSubmitting || !selectedWorkspaceId">
             {{ isSubmitting ? '保存中...' : 'ノートを保存' }}
           </button>
-          <RouterLink class="back-link" :to="{ name: 'home' }">キャンセル</RouterLink>
+          <RouterLink class="back-link" :to="{ name: 'notes' }">キャンセル</RouterLink>
         </div>
       </form>
     </section>
 
-    <footer class="new-project-footer" aria-hidden="true">
-      PROJECTNOTE&nbsp; // &nbsp;SYSTEM_READY
-    </footer>
+    <footer class="new-project-footer" aria-hidden="true">ProjectNote&nbsp; / &nbsp;準備完了</footer>
   </main>
 </template>
 
